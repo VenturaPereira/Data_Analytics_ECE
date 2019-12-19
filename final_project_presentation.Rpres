@@ -1,0 +1,117 @@
+Final Project Presentation: Trains and Flights
+========================================================
+author:  Benjamin Blondeau, Valentin Clouet, Ventura Pereira
+date: 19-12-2019
+autosize: true
+
+Data Analytics Flights/Trains Dashboard
+========================================================
+This work was made by:
+
+- Ventura Pereira
+- Benjamin Blondeau
+- Valentin Clouet
+
+Slide With Code
+========================================================
+
+```{r}
+
+trains <- read.csv(file="full_trains.csv")
+summary(trains)
+ncol(trains)
+```
+
+Tab-Trains Plots of delayed trains at departure and arrival
+========================================================
+![alt text](trains_first.png "hover text")
+```{r, echo=FALSE}
+library(plyr)
+library(tidyverse)
+library(tibble)
+library(ggplot2)
+trains <- read.csv(file="full_trains.csv")
+
+   trains_late_at_arrival=trains %>%
+             group_by(year) %>%
+            summarize(result = sum(num_arriving_late, na.rm = TRUE))
+        trains_late_at_arrival=data.frame(column_to_rownames(trains_late_at_arrival,var="year"))
+    
+        barplot(t(as.matrix(trains_late_at_arrival)),
+                main="Number of delayed trains on arrival",
+                xlab="year",
+                ylab="Total",
+                col="blue",
+                las=2,
+                cex.names=1,
+                beside=TRUE)
+        
+    
+ 
+```
+We can see that in the recent years the delay increased.
+
+Tab-Trains Plots of delayed trains at departure and arrival by station
+========================================================
+```{r, echo=FALSE}
+  trains_late_at_arrival2=trains %>%
+             group_by(departure_station) %>%
+            summarize(result = sum(num_arriving_late, na.rm = TRUE))
+        trains_late_at_arrival2=data.frame(column_to_rownames(trains_late_at_arrival2,var="departure_station"))
+    
+        barplot(t(as.matrix(trains_late_at_arrival2)),
+                main="Number of delayed trains on arrival",
+                xlab="departure_station",
+                ylab="Total",
+                col="blue",
+                las=2,
+                cex.names=1,
+                beside=TRUE)
+```      
+Here we can see that the station where trains arrive late the most is Paris Lyon
+
+
+
+Tab-Trains Percentages, porportions for all delay reasons
+========================================================
+```{r, echo=FALSE}
+
+
+  toExclude <- names(trains)[1:17]
+        toExcludeToo <- names(trains)[24:27]
+        trains2 <- gather(trains,causes,percentages,-toExclude,-toExcludeToo)
+      
+       causes_reasons=trains2 %>%
+            group_by(year) %>%
+            count(causes)
+            
+        causes_reasons_portion=trains2 %>%
+              group_by(year,causes) %>%
+                 summarize(result = (sum(percentages,na.rm=TRUE)/1344)*100)
+       
+
+        
+        plot <- ggplot(causes_reasons_portion, aes(x = year, y = result,fill=causes)) +
+            geom_bar(stat='identity')
+        plot
+       
+```
+We can see that the most usual delay reason is due to external causes while the least frequent one is due to travelers.
+
+Second tab -  Airport Map and Flights per Airline
+========================================================
+![alt text](second_tab.png "hover text")
+
+Here we can see the second tab which first shows a map of the airports and the number of flights as a barplot.
+
+
+Second tab - Average Departure Delay per Airline
+========================================================
+![alt text](another_graphic.png "hover text")
+Here we can see that the flights with the least average delay time are from the HA airline and the biggest is from NK.
+   
+
+Second tab - Average Arrival Delay per Origin Airport
+========================================================
+![alt text](last_graphic.png "hover text")
+Here we can see that there are some airports that receive planes earlier than expected while the majority is late.
